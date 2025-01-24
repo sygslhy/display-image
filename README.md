@@ -1,10 +1,18 @@
 # Display Image
 
 Display image is a Python project which provides a command `display-image` to visualize the image and metadata by QtPy6.
+
+## Installation
+
+~~~~~~~~~~~~~~~{.shell}
+pip install display-image
+~~~~~~~~~~~~~~~
+
+## Usage
+
 ~~~~~~~~~~~~~~~{.shell}
 display-image -i <path_to_image>
 ~~~~~~~~~~~~~~~
-
 
 
 The following format extensions can be displayed by command `display-image`
@@ -23,7 +31,7 @@ The following format extensions can be displayed by command `display-image`
 
 ![displaye-image GUI](https://github.com/sygslhy/display-image/blob/master/images/display-image-gui.png)
 
-## Image display with sidecar JSON
+### Image display with sidecar JSON
 
 Some file formats need to know in advance some informations about the image. For example, the PLAIN RAW format is just a simple dump of a buffer into a file, thus it needs to know how to interpret the data.
 In this case, user need to have an image sidecar JSON located next to the image file as the same name and path `path_to_image.json`
@@ -42,6 +50,6 @@ In this case, user need to have an image sidecar JSON located next to the image 
 
 After image reading, the information in JSON sidecar will be shown in tab Widegt of `ImageMetadata`
 
-# License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/sygslhy/display-image/blob/master/LICENSE.md) file for details.
