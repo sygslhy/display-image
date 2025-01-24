@@ -4,7 +4,7 @@ Display image is a Python project which provides a command `display-image` to vi
 ~~~~~~~~~~~~~~~{.shell}
 display-image -i <path_to_image>
 ~~~~~~~~~~~~~~~
-![displaye-image GUI](images/display-image-gui.png)
+![displaye-image GUI](https://github.com/sygslhy/display-image/blob/master/images/display-image-gui.png)
 
 
 | Image format  | Read | EXIF | Pixel precision        | Pixel type           | File extension                   |  Sidecar needed  |
@@ -18,16 +18,7 @@ display-image -i <path_to_image>
 | PNG           | x    |      | 8 bits, 16 bits        | Grayscale, RGB, RGBA | .png                             |                  |
 | TIFF          | x    | x    | 8 bits, 16 bits        | Bayer, RGB           | .tif, .tiff                      |                  |
 
-# Getting Started
-
-## Prerequisites
-
-This projet currently supports Python from `3.9` to `3.13` on
-- Windows: `x86_64`
-- Linux: `x86_64`, glibc `v2.28+`, musl libc
-- MacOS: `x86_64` and `arm64`, `v11.0+`
-
 
 # License
 
-This project is licensed under the MIT License - see the [LICENSE.md]() file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/sygslhy/display-image/blob/master/LICENSE.md) file for details.

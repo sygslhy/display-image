@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "display-image"
-version = "0.0.1"
+version = "0.0.10.alpha"
 dependencies = [
-  "cxx-image-io >= 1.0.10", "PyQt6>=6.8.0", "pyqtgraph>=0.13.7"
+  "cxx-image-io >= 1.0.10", "PyQt6>=6.6.0", "pyqtgraph>=0.13.4"
 ]
 authors = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
 maintainers = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
@@ -35,5 +35,5 @@ classifiers = [
 ]
 
 [project.scripts]
-display-image = "display_image.display:main"
+display-image = "display:main"
 

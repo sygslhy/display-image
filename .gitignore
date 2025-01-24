@@ -3,7 +3,7 @@ compile_commands.json
 __pycache__/
 *.pyc
 *.pyd
-cxx_image_io.egg-info/
+display_image.egg-info/
 dist/
 pv_venv/
 .codegpt/
