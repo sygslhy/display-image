@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "display-image"
-version = "0.0.10.alpha"
+version = "0.1.0"
 dependencies = [
   "cxx-image-io >= 1.0.10", "PyQt6>=6.6.0", "pyqtgraph>=0.13.4"
 ]
 authors = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
 maintainers = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
-description = "PyQt6 Gui App to display the wide range image formats (jpg, png, tif, dng, bmp, and RAWs), with displaying metadata and histogram."
+description = " PyQt6 Gui App to display the wide range image formats (jpg, png, tif, dng, bmp, and RAWs), with image metadata and histogram."
 requires-python = ">=3.9"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = {text = "MIT License"}
