@@ -29,7 +29,8 @@ The following format extensions can be displayed by command `display-image`
 | TIFF          | x    | x    | 8 bits, 16 bits        | Bayer, RGB           | .tif, .tiff                      |                  |
 
 
-![displaye-image GUI](https://github.com/sygslhy/display-image/blob/master/images/display-image-gui.png)
+![displaye-image GUI](https://github.com/user-attachments/assets/79e246d7-cd8f-4d4a-b0bc-412f2c0b8b6a)
+
 
 ### Image display with sidecar JSON
 
@@ -49,6 +50,45 @@ In this case, user need to have an image sidecar JSON located next to the image 
 ~~~~~~~~~~~~~~~
 
 After image reading, the information in JSON sidecar will be shown in tab Widegt of `ImageMetadata`
+
+### Other image reading with sidecar examples
+
+<details>
+  <summary>
+  Click to unfold other image format sidecar examples
+  </summary>
+
+#### Packed RAW MIPI 12 bits:
+
+sidecar json
+~~~~~~~~~~~~~~~{.json}
+{
+    "fileInfo": {
+        "fileFormat": "raw12",
+        "height": 3000,
+        "width": 4000,
+        "pixelPrecision": 12,
+        "pixelType": "bayer_gbrg"
+    }
+}
+~~~~~~~~~~~~~~~
+
+#### Packed RAW MIPI 10 bits:
+
+sidecar json
+~~~~~~~~~~~~~~~{.json}
+{
+    "fileInfo": {
+        "height": 3000,
+        "width": 4000,
+		"format": "raw10",
+		"pixelPrecision": 10,
+		"pixelType": "bayer_grbg"
+    }
+}
+~~~~~~~~~~~~~~~
+
+</details>
 
 ## License
 
