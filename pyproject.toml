@@ -37,3 +37,8 @@ classifiers = [
 [project.scripts]
 display-image = "display:main"
 
+[project.urls]
+Homepage = "https://github.com/sygslhy/display-image"
+Repository  = "https://github.com/sygslhy/display-image"
+Issues = "https://github.com/sygslhy/display-image/issues"
+Releases = "https://github.com/sygslhy/display-image/releases"
