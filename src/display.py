@@ -239,8 +239,8 @@ class ImageDisplayer(QWidget):
         self.setLayout(vbox)
         self.setWindowTitle('Image Displayer')
 
-    def convertNumpyArrayToQImage(self, image, metadata):
-
+    def convertNumpyArrayToQImage(self, img, metadata):
+        image = np.array(img)
         if metadata.fileInfo.pixelRepresentation == PixelRepresentation.UINT8:
             if metadata.fileInfo.pixelType in [
                     PixelType.BAYER_RGGB, PixelType.BAYER_BGGR,
