@@ -240,14 +240,14 @@ class ImageDisplayer(QWidget):
         self.setWindowTitle('Image Displayer')
 
     def convertNumpyArrayToQImage(self, img, metadata):
-        image = np.array(img)
         if metadata.fileInfo.pixelRepresentation == PixelRepresentation.UINT8:
+            image = np.array(img)
             if metadata.fileInfo.pixelType in [
                     PixelType.BAYER_RGGB, PixelType.BAYER_BGGR,
                     PixelType.BAYER_GRBG, PixelType.BAYER_GBRG
             ] or metadata.fileInfo.pixelType == PixelType.GRAYSCALE:
                 return QImage(image.data, image.shape[1], image.shape[0],
-                              QImage.Format_Grayscale8)
+                              QImage.Format.Format_Grayscale8)
             elif metadata.fileInfo.pixelType == PixelType.RGB:
                 return QImage(image.data, image.shape[1], image.shape[0],
                               QImage.Format.Format_RGB888)
@@ -261,6 +261,10 @@ class ImageDisplayer(QWidget):
                         metadata.fileInfo.pixelType))
 
         elif metadata.fileInfo.pixelRepresentation == PixelRepresentation.UINT16:
+            factor = 1
+            if metadata.fileInfo.pixelPrecision:
+                factor = int(65535.0 / (2 ** metadata.fileInfo.pixelPrecision - 1))
+            image = np.array(img * factor)
             if metadata.fileInfo.pixelType in [
                     PixelType.BAYER_RGGB, PixelType.BAYER_BGGR,
                     PixelType.BAYER_GRBG, PixelType.BAYER_GBRG
@@ -327,6 +331,7 @@ class ImageDisplayer(QWidget):
             self.labmakeValue.setText(str(exifMetadata['make']))
         if 'model' in exifMetadata:
             self.labmodelValue.setText(str(exifMetadata['model']))
+
         if 'orientation' in exifMetadata:
             self.laborientationValue.setText(str(exifMetadata['orientation']))
         if 'software' in exifMetadata:
