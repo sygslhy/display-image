@@ -31,6 +31,23 @@ The following format extensions can be displayed by command `display-image`
 
 ![displaye-image GUI](https://github.com/user-attachments/assets/79e246d7-cd8f-4d4a-b0bc-412f2c0b8b6a)
 
+### Read Camera manufacturer RAW image display
+
+The RAW image formats of the following camera manufacturers are supported, user can display these camera raw files by dependency `cxx-image-io` version`v1.1.0`.
+
+| Camera manufacturer | Image format |
+|---------------------|--------------|
+| Canon               | CR2          |
+| Nikon               | NEF          |
+| Sony                | ARW          |
+| Panasonic           | RW2          |
+| Kodak               | DCR          |
+| Samsung             | SRW          |
+| Olympus             | ORF          |
+| Leica               | RAW          |
+| Pentax              | PEF          |
+
+![displaye-image RAW image](https://github.com/user-attachments/assets/183da000-9308-467c-b81e-3fe2643d20db)
 
 ### Image display with sidecar JSON
 
