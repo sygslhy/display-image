@@ -8,8 +8,8 @@ Author: Yuan SUN
 """
 
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QTabWidget, QFrame, QGroupBox, QScrollArea, QLabel, QGridLayout, QMessageBox
-from PyQt6.QtGui import QPixmap, QImage, QCursor
+from PyQt6.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QTabWidget, QFrame, QGroupBox, QScrollArea, QLabel, QGridLayout, QMessageBox, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
+from PyQt6.QtGui import QPixmap, QImage, QPainter, QTransform
 from PyQt6.QtCore import Qt, QPoint
 import pyqtgraph as pg
 from cxx_image_io import read_image, PixelRepresentation, PixelType
@@ -17,14 +17,139 @@ import argparse
 import pathlib
 import numpy as np
 
+class ImageViewer(QGraphicsView):
+    def __init__(self, image, metadata, pixelStatus, zoomStatus):
+        super().__init__()
+        self.image = image
+        self.metadata = metadata
+        self.pixelStatus = pixelStatus
+        self.zoomStatus = zoomStatus
+        self.scale_percentage = 100
+        qimage = self.convertNumpyArrayToQImage(self.image, self.metadata)
+        self.pix_map_image = QPixmap.fromImage(qimage)
 
+        # 创建场景
+        self.scene = QGraphicsScene(self)
+        self.setScene(self.scene)
+
+        # 加载图片
+        self.image_item = QGraphicsPixmapItem(self.pix_map_image)
+        self.scene.addItem(self.image_item)
+
+        # 设置抗锯齿和插值模式
+        self.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+        self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)  # 以鼠标位置为缩放中心
+        self.setResizeAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
+
+        # 缩放参数
+        self.scale_factor = 1.0  # 当前缩放比例
+        self.zoom_history = [1.0]  # **存储缩放比例的历史**
+        self.zoom_images = [self.pix_map_image]  # **存储不同缩放比例的图像**
+        self.max_zoom = 10.0
+        self.min_zoom = 0.1
+
+    def convertNumpyArrayToQImage(self, img, metadata):
+        if metadata.fileInfo.pixelRepresentation == PixelRepresentation.UINT8:
+            image = np.array(img)
+            if metadata.fileInfo.pixelType in [
+                    PixelType.BAYER_RGGB, PixelType.BAYER_BGGR,
+                    PixelType.BAYER_GRBG, PixelType.BAYER_GBRG
+            ] or metadata.fileInfo.pixelType == PixelType.GRAYSCALE:
+                return QImage(image.data, image.shape[1], image.shape[0],
+                              QImage.Format.Format_Grayscale8)
+            elif metadata.fileInfo.pixelType == PixelType.RGB:
+                return QImage(image.data, image.shape[1], image.shape[0],
+                              QImage.Format.Format_RGB888)
+            elif metadata.fileInfo.pixelType == PixelType.RGBA:
+                return QImage(image.data, image.shape[1], image.shape[0],
+                              QImage.Format.Format_RGBA8888)
+            else:
+                QMessageBox.critical(
+                    None, "Error",
+                    "Unsupported pixel type  on 8 bits: {} ".format(
+                        metadata.fileInfo.pixelType))
+
+        elif metadata.fileInfo.pixelRepresentation == PixelRepresentation.UINT16:
+            factor = 1
+            if metadata.fileInfo.pixelPrecision:
+                factor = int(65535.0 / (2 ** metadata.fileInfo.pixelPrecision - 1))
+            image = np.array(img * factor)
+            if metadata.fileInfo.pixelType in [
+                    PixelType.BAYER_RGGB, PixelType.BAYER_BGGR,
+                    PixelType.BAYER_GRBG, PixelType.BAYER_GBRG
+            ] or metadata.fileInfo.pixelType == PixelType.GRAYSCALE:
+                return QImage(image.data, image.shape[1], image.shape[0],
+                              QImage.Format.Format_Grayscale16)
+            elif metadata.fileInfo.pixelType == PixelType.RGBA:
+                return QImage(image.data, image.shape[1], image.shape[0],
+                              QImage.Format.Format_RGBA64)
+            else:
+                QMessageBox.critical(
+                    None, "Error",
+                    "Unsupported pixel type  on 16 bits: {} ".format(
+                        metadata.fileInfo.pixelType))
+
+        else:
+            QMessageBox.critical(
+                None, "Error", "Unsupported pixel representation: {} ".format(
+                    metadata.fileInfo.pixelRepresentation))
+
+
+    def wheelEvent(self, event):
+        """鼠标滚轮事件：允许从 `1.0x` 开始缩小，并记录历史"""
+        zoom_in_factor = 1.2
+        zoom_out_factor = 1 / zoom_in_factor
+
+        if event.angleDelta().y() > 0:  # 滚轮向上，放大
+            new_scale = self.scale_factor * zoom_in_factor
+            if new_scale <= self.max_zoom:  # 限制最大缩放
+                self.scale_factor = new_scale
+                self.zoom_history.append(self.scale_factor)  # **记录历史缩放比例**
+                self.scale(zoom_in_factor, zoom_in_factor)
+
+        elif event.angleDelta().y() < 0:  # 滚轮向下，缩小
+            new_scale = self.scale_factor * zoom_out_factor
+            if new_scale >= self.min_zoom:  # 限制最小缩放
+                self.scale_factor = new_scale
+                self.zoom_history.append(self.scale_factor)  # **记录历史缩放比例**
+                self.scale(zoom_out_factor, zoom_out_factor)
+
+        # **如果缩放比例变回 `1.0x`，恢复原图**
+        if self.scale_factor == 1.0:
+            self.resetTransform()  # **重置所有缩放**
+            self.image_item.setPixmap(self.pix_map_image)  # **恢复原图**
+            self.zoom_history = [1.0]  # **重置缩放历史**
+
+        scale_percentage = self.scale_factor * 100
+        zoom_status = "Zoom factor: {:.1f}%".format(scale_percentage)
+        self.zoomStatus.setText(zoom_status)
+
+
+    def update_coordinates(self, event):
+        scene_pos = self.mapToScene(event.pos())  # 转换为场景坐标
+        item_pos = self.image_item.mapFromScene(scene_pos)  # 转换为图像坐标
+
+        pix_x = int(item_pos.x())
+        pix_y = int(item_pos.y())
+
+
+        if pix_x >= 0 and pix_x < self.image.shape[
+                1] and pix_y >= 0 and pix_y < self.image.shape[0]:
+            pixel_value = self.image[pix_y, pix_x]
+            pixel_status = "Position：x = {}, y = {}, value = {}".format(
+                pix_x, pix_y, pixel_value)
+            self.pixelStatus.setText(pixel_status)
+
+
+    def mousePressEvent(self, event):
+        self.update_coordinates(event)
+        
 class ImageDisplayer(QWidget):
     image = None
     metadata = None
     image_path = None
     frame = None
     tabWidget = None
-    imagepic = None
     imageArea = None
 
     def __init__(self, image, metadata, image_path):
@@ -36,26 +161,6 @@ class ImageDisplayer(QWidget):
         self.showImage()
         self.showMetadata()
 
-    def mousePressEvent(self, event):
-        position = QCursor.pos()
-
-        x = position.x()
-        y = position.y()
-
-        label_x = self.imagepic.mapToGlobal(QPoint(0, 0)).x()
-        label_y = self.imagepic.mapToGlobal(QPoint(0, 0)).y()
-
-        pix_x = x - label_x
-        pix_y = y - label_y
-
-        pixel_value = self.image[pix_y, pix_x]
-        pixel_status = "Position：x = {}, y = {}, value = {}".format(
-            pix_x, pix_y, pixel_value)
-
-        if pix_x >= 0 and pix_x < self.image.shape[
-                1] and pix_y >= 0 and pix_y < self.image.shape[0]:
-            self.pixelStatus.setText(pixel_status)
-
     def initImageViewUI(self):
         self.tabWidget = QTabWidget(self)
         self.tabImage = QWidget(self.tabWidget)
@@ -63,12 +168,14 @@ class ImageDisplayer(QWidget):
         self.imageArea = QScrollArea(self.tabImage)
         vbox = QVBoxLayout(self.tabImage)
         vbox.addWidget(self.imageArea)
-        self.imagepic = QLabel(self.imageArea)
-        self.imagepic.setText('Image preview')
-        self.imageArea.setWidget(self.imagepic)
         self.imageArea.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.pixelStatus = QLabel("Ready", self)
-        vbox.addWidget(self.pixelStatus)
+        
+        hbox = QHBoxLayout()
+        self.pixelStatus = QLabel("Click pixel to display value", self)
+        self.zoomStatus = QLabel("Zoom factor: 100%", self)
+        hbox.addWidget(self.pixelStatus)
+        hbox.addWidget(self.zoomStatus)
+        vbox.addLayout(hbox)
 
     def initFileInfoUI(self, tabFileInfo):
 
@@ -239,57 +346,10 @@ class ImageDisplayer(QWidget):
         self.setLayout(vbox)
         self.setWindowTitle('Image Displayer')
 
-    def convertNumpyArrayToQImage(self, img, metadata):
-        if metadata.fileInfo.pixelRepresentation == PixelRepresentation.UINT8:
-            image = np.array(img)
-            if metadata.fileInfo.pixelType in [
-                    PixelType.BAYER_RGGB, PixelType.BAYER_BGGR,
-                    PixelType.BAYER_GRBG, PixelType.BAYER_GBRG
-            ] or metadata.fileInfo.pixelType == PixelType.GRAYSCALE:
-                return QImage(image.data, image.shape[1], image.shape[0],
-                              QImage.Format.Format_Grayscale8)
-            elif metadata.fileInfo.pixelType == PixelType.RGB:
-                return QImage(image.data, image.shape[1], image.shape[0],
-                              QImage.Format.Format_RGB888)
-            elif metadata.fileInfo.pixelType == PixelType.RGBA:
-                return QImage(image.data, image.shape[1], image.shape[0],
-                              QImage.Format.Format_RGBA8888)
-            else:
-                QMessageBox.critical(
-                    None, "Error",
-                    "Unsupported pixel type  on 8 bits: {} ".format(
-                        metadata.fileInfo.pixelType))
-
-        elif metadata.fileInfo.pixelRepresentation == PixelRepresentation.UINT16:
-            factor = 1
-            if metadata.fileInfo.pixelPrecision:
-                factor = int(65535.0 / (2 ** metadata.fileInfo.pixelPrecision - 1))
-            image = np.array(img * factor)
-            if metadata.fileInfo.pixelType in [
-                    PixelType.BAYER_RGGB, PixelType.BAYER_BGGR,
-                    PixelType.BAYER_GRBG, PixelType.BAYER_GBRG
-            ] or metadata.fileInfo.pixelType == PixelType.GRAYSCALE:
-                return QImage(image.data, image.shape[1], image.shape[0],
-                              QImage.Format.Format_Grayscale16)
-            elif metadata.fileInfo.pixelType == PixelType.RGBA:
-                return QImage(image.data, image.shape[1], image.shape[0],
-                              QImage.Format.Format_RGBA64)
-            else:
-                QMessageBox.critical(
-                    None, "Error",
-                    "Unsupported pixel type  on 16 bits: {} ".format(
-                        metadata.fileInfo.pixelType))
-
-        else:
-            QMessageBox.critical(
-                None, "Error", "Unsupported pixel representation: {} ".format(
-                    metadata.fileInfo.pixelRepresentation))
-
     def showImage(self):
-        qimage = self.convertNumpyArrayToQImage(self.image, self.metadata)
-        px = QPixmap.fromImage(qimage)
-        self.imagepic.resize(px.width(), px.height())
-        self.imagepic.setPixmap(px)
+        self.image_viewer = ImageViewer(self.image, self.metadata, self.pixelStatus, self.zoomStatus)
+        self.imageArea.setWidget(self.image_viewer)
+        self.imageArea.setWidgetResizable(True)
         self.tabWidget.setCurrentIndex(0)
 
     def showMetadata(self):
