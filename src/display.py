@@ -446,13 +446,18 @@ def main():
 
     try:
         image_path = pathlib.Path(args.image)
-        metadata_path = pathlib.Path(args.metadata) if args.metadata else None
+        assert image_path.exists(), 'Non-existing image path: {}'.format(str(image_path))
+        if args.metadata:
+            metadata_path = pathlib.Path(args.metadata)  
+            assert metadata_path.exists(), 'Non-existing metadata path: {}'.format(str(metadata_path))
+        else: 
+            metadata_path = None
         image, metadata = read_image(image_path, metadata_path)
 
         app = QApplication(sys.argv)
         img_displayer = ImageDisplayer(image, metadata, image_path)
-        img_displayer.resize(400, 300)
-        img_displayer.move(300, 300)
+        img_displayer.resize(1000, 800)
+        img_displayer.move(100, 100)
         img_displayer.show()
     except Exception as e:
         sys.exit("Exception caught in display image, check the error log: {}.".
