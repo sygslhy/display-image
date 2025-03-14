@@ -33,7 +33,7 @@ The following format extensions can be displayed by command `display-image`
 
 ### Read Camera manufacturer RAW image display
 
-The RAW image formats of the following camera manufacturers are supported, user can display these camera raw files by dependency `cxx-image-io` version`v1.1.0`.
+The RAW image formats of the following camera manufacturers are supported, user can display these camera raw files by dependency `cxx-image-io` version`v1.1.2`.
 
 | Camera manufacturer | Image format |
 |---------------------|--------------|
@@ -47,7 +47,9 @@ The RAW image formats of the following camera manufacturers are supported, user 
 | Leica               | RAW          |
 | Pentax              | PEF          |
 
-![displaye-image RAW image](https://github.com/user-attachments/assets/183da000-9308-467c-b81e-3fe2643d20db)
+![displaye-image RAW image](https://github.com/user-attachments/assets/1cafd5d8-0e9e-4c29-a4b9-af709ac7fafa)
+
+User can scroll mouse to zoom in/out, and at bottom it can display the zoom factor and pixel value where use clicked with mouse. 
 
 ### Image display with sidecar JSON
 
