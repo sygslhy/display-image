@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "display-image"
 version = "0.1.5"
 dependencies = [
-  "cxx-image-io >= 1.0.10", "PyQt6>=6.8.0", "pyqtgraph>=0.13.7", "QDarkStyle>=3.23"
+  "cxx-image-io >= 1.1.3", "PyQt6>=6.8.0", "pyqtgraph>=0.13.7", "QDarkStyle>=3.23"
 ]
 authors = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
 maintainers = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]

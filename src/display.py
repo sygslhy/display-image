@@ -8,9 +8,12 @@ Author: Yuan SUN
 """
 
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QTabWidget, QFrame, QGroupBox, QScrollArea, QLabel, QGridLayout, QMessageBox, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
-from PyQt6.QtGui import QPixmap, QImage, QPainter, QTransform
-from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtWidgets import (QApplication, QWidget, QHBoxLayout, QVBoxLayout,
+                             QTabWidget, QFrame, QGroupBox, QScrollArea,
+                             QLabel, QGridLayout, QMessageBox, QGraphicsView,
+                             QGraphicsScene, QGraphicsPixmapItem)
+from PyQt6.QtGui import QPixmap, QImage, QPainter
+from PyQt6.QtCore import Qt
 import pyqtgraph as pg
 from cxx_image_io import read_image, PixelRepresentation, PixelType
 import argparse
@@ -18,7 +21,9 @@ import pathlib
 import numpy as np
 import qdarkstyle
 
+
 class ImageViewer(QGraphicsView):
+
     def __init__(self, image, metadata, pixelStatus, zoomStatus):
         super().__init__()
         self.image = image
@@ -39,7 +44,8 @@ class ImageViewer(QGraphicsView):
 
         # 设置抗锯齿和插值模式
         self.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
-        self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)  # 以鼠标位置为缩放中心
+        self.setTransformationAnchor(
+            QGraphicsView.ViewportAnchor.AnchorUnderMouse)  # 以鼠标位置为缩放中心
         self.setResizeAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
 
         # 缩放参数
@@ -70,10 +76,12 @@ class ImageViewer(QGraphicsView):
                     "Unsupported pixel type  on 8 bits: {} ".format(
                         metadata.fileInfo.pixelType))
 
-        elif metadata.fileInfo.pixelRepresentation == PixelRepresentation.UINT16:
+        elif (metadata.fileInfo.pixelRepresentation ==
+              PixelRepresentation.UINT16):
             factor = 1
             if metadata.fileInfo.pixelPrecision:
-                factor = int(65535.0 / (2 ** metadata.fileInfo.pixelPrecision - 1))
+                factor = int(65535.0 /
+                             (2**metadata.fileInfo.pixelPrecision - 1))
             image = np.array(img * factor)
             if metadata.fileInfo.pixelType in [
                     PixelType.BAYER_RGGB, PixelType.BAYER_BGGR,
@@ -94,7 +102,6 @@ class ImageViewer(QGraphicsView):
             QMessageBox.critical(
                 None, "Error", "Unsupported pixel representation: {} ".format(
                     metadata.fileInfo.pixelRepresentation))
-
 
     def wheelEvent(self, event):
         """鼠标滚轮事件：允许从 `1.0x` 开始缩小，并记录历史"""
@@ -125,14 +132,12 @@ class ImageViewer(QGraphicsView):
         zoom_status = "Zoom factor: {:.1f}%".format(scale_percentage)
         self.zoomStatus.setText(zoom_status)
 
-
     def update_coordinates(self, event):
         scene_pos = self.mapToScene(event.pos())  # 转换为场景坐标
         item_pos = self.image_item.mapFromScene(scene_pos)  # 转换为图像坐标
 
         pix_x = int(item_pos.x())
         pix_y = int(item_pos.y())
-
 
         if pix_x >= 0 and pix_x < self.image.shape[
                 1] and pix_y >= 0 and pix_y < self.image.shape[0]:
@@ -141,10 +146,10 @@ class ImageViewer(QGraphicsView):
                 pix_x, pix_y, pixel_value)
             self.pixelStatus.setText(pixel_status)
 
-
     def mousePressEvent(self, event):
         self.update_coordinates(event)
-        
+
+
 class ImageDisplayer(QWidget):
     image = None
     metadata = None
@@ -170,13 +175,14 @@ class ImageDisplayer(QWidget):
         vbox = QVBoxLayout(self.tabImage)
         vbox.addWidget(self.imageArea)
         self.imageArea.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
+
         hbox = QHBoxLayout()
         self.pixelStatus = QLabel("Click pixel to display value", self)
         self.zoomStatus = QLabel("Zoom factor: 100%", self)
         hbox.addWidget(self.pixelStatus)
         hbox.addWidget(self.zoomStatus)
         vbox.addLayout(hbox)
+
 
     def initFileInfoUI(self, tabFileInfo):
 
@@ -293,20 +299,101 @@ class ImageDisplayer(QWidget):
         grid_layout.setRowStretch(grid_layout.rowCount(), 1)
         tabExif.setLayout(grid_layout)
 
+    def initCalibrationDataUI(self, tabCalibrationData):
+
+        labblackLevel = QLabel("blackLevel", tabCalibrationData)
+        self.labblackLevelValue = QLabel(tabCalibrationData)
+        labwhiteLevel = QLabel("whiteLevel", tabCalibrationData)
+        self.labwhiteLevelValue = QLabel(tabCalibrationData)
+        labcolorMatrix = QLabel("colorMatrix", tabCalibrationData)
+        self.labcolorMatrixValue = QLabel(tabCalibrationData)
+
+        grid_layout = QGridLayout()
+        grid_layout.addWidget(labblackLevel, 0, 0)
+        grid_layout.addWidget(self.labblackLevelValue, 0, 1)
+        grid_layout.addWidget(labwhiteLevel, 1, 0)
+        grid_layout.addWidget(self.labwhiteLevelValue, 1, 1)
+        grid_layout.addWidget(labcolorMatrix, 2, 0)
+        grid_layout.addWidget(self.labcolorMatrixValue, 2, 1)
+
+        grid_layout.setRowStretch(grid_layout.rowCount(), 1)
+
+        tabCalibrationData.setLayout(grid_layout)
+
+    def initCameraControlUI(self, tabCameraControl):
+
+        labbwhiteBalance = QLabel("whiteBalance", tabCameraControl)
+        self.labwhiteBalanceValue = QLabel(tabCameraControl)
+
+        grid_layout = QGridLayout()
+        grid_layout.addWidget(labbwhiteBalance, 0, 0)
+        grid_layout.addWidget(self.labwhiteBalanceValue, 0, 1)
+        grid_layout.setRowStretch(grid_layout.rowCount(), 1)
+
+        tabCameraControl.setLayout(grid_layout)
+
+    def initLibRawParamsUI(self, tabLibRawParams):
+
+        labrawWidth = QLabel("rawWidth", tabLibRawParams)
+        self.labrawWidthValue = QLabel(tabLibRawParams)
+
+        labrawHeight = QLabel("rawHeight", tabLibRawParams)
+        self.labrawHeightValue = QLabel(tabLibRawParams)
+
+        labrawWidthVisible = QLabel("rawWidthVisible", tabLibRawParams)
+        self.labrawWidthVisibleValue = QLabel(tabLibRawParams)
+
+        labrawHeightVisible = QLabel("rawHeightVisible", tabLibRawParams)
+        self.labrawHeightVisibleValue = QLabel(tabLibRawParams)
+
+        labtopMargin = QLabel("topMargin", tabLibRawParams)
+        self.labtopMarginValue = QLabel(tabLibRawParams)
+
+        lableftMargin = QLabel("leftMargin", tabLibRawParams)
+        self.lableftMarginValue = QLabel(tabLibRawParams)
+
+        grid_layout = QGridLayout()
+        grid_layout.addWidget(labrawWidth, 0, 0)
+        grid_layout.addWidget(self.labrawWidthValue, 0, 1)
+        grid_layout.addWidget(labrawHeight, 1, 0)
+        grid_layout.addWidget(self.labrawHeightValue, 1, 1)
+        grid_layout.addWidget(labrawWidthVisible, 2, 0)
+        grid_layout.addWidget(self.labrawWidthVisibleValue, 2, 1)
+        grid_layout.addWidget(labrawHeightVisible, 3, 0)
+        grid_layout.addWidget(self.labrawHeightVisibleValue, 3, 1)
+        grid_layout.addWidget(labtopMargin, 4, 0)
+        grid_layout.addWidget(self.labtopMarginValue, 4, 1)
+        grid_layout.addWidget(lableftMargin, 5, 0)
+        grid_layout.addWidget(self.lableftMarginValue, 5, 1)
+
+        grid_layout.setRowStretch(grid_layout.rowCount(), 1)
+
+        tabLibRawParams.setLayout(grid_layout)
+
     def initMetadataUI(self):
         self.frame = QFrame(self)
         framelayout = QVBoxLayout(self.frame)
         groupbox = QGroupBox("Image Metadata", self.frame)
         grouplayout = QVBoxLayout(groupbox)
-
         tabWidgetMeta = QTabWidget(groupbox)
-        tabExif = QWidget(tabWidgetMeta)
+
         tabFileInfo = QWidget(tabWidgetMeta)
+        tabExif = QWidget(tabWidgetMeta)
+        tabCalibrationData = QWidget(tabWidgetMeta)
+        tabCameraControl = QWidget(tabWidgetMeta)
+        tabLibRawParams = QWidget(tabWidgetMeta)
+
         tabWidgetMeta.addTab(tabFileInfo, "FileInfo")
         tabWidgetMeta.addTab(tabExif, "Exif")
+        tabWidgetMeta.addTab(tabCalibrationData, "CalibrationData")
+        tabWidgetMeta.addTab(tabCameraControl, "CameraControl")
+        tabWidgetMeta.addTab(tabLibRawParams, "LibRawParams")
 
         self.initFileInfoUI(tabFileInfo)
         self.initExifUI(tabExif)
+        self.initCalibrationDataUI(tabCalibrationData)
+        self.initCameraControlUI(tabCameraControl)
+        self.initLibRawParamsUI(tabLibRawParams)
 
         grouplayout.addWidget(tabWidgetMeta)
         groupbox.setLayout(grouplayout)
@@ -348,7 +435,8 @@ class ImageDisplayer(QWidget):
         self.setWindowTitle('Image Displayer')
 
     def showImage(self):
-        self.image_viewer = ImageViewer(self.image, self.metadata, self.pixelStatus, self.zoomStatus)
+        self.image_viewer = ImageViewer(self.image, self.metadata,
+                                        self.pixelStatus, self.zoomStatus)
         self.imageArea.setWidget(self.image_viewer)
         self.imageArea.setWidgetResizable(True)
         self.tabWidget.setCurrentIndex(0)
@@ -421,6 +509,40 @@ class ImageDisplayer(QWidget):
             self.labfocalLengthIn35mmFilmValue.setText(
                 str(exifMetadata['focalLengthIn35mmFilm']))
 
+        calibrationData = self.metadata.calibrationData.serialize()
+        if 'blackLevel' in calibrationData:
+            self.labblackLevelValue.setText(str(calibrationData['blackLevel']))
+        if 'whiteLevel' in calibrationData:
+            self.labwhiteLevelValue.setText(str(calibrationData['whiteLevel']))
+        if 'colorMatrix' in calibrationData:
+            self.labcolorMatrixValue.setText(
+                str(calibrationData['colorMatrix']))
+            self.labcolorMatrixValue.setWordWrap(True)
+
+        cameraControls = self.metadata.cameraControls.serialize()
+        if 'whiteBalance' in cameraControls:
+            self.labwhiteBalanceValue.setText(
+                str(cameraControls['whiteBalance']))
+            self.labwhiteBalanceValue.setWordWrap(True)
+
+        if self.metadata.libRawParameters:
+            libRawParams = self.metadata.libRawParameters.__dict__
+            if 'rawWidth' in libRawParams:
+                self.labrawWidthValue.setText(str(libRawParams['rawWidth']))
+            if 'rawHeight' in libRawParams:
+                self.labrawHeightValue.setText(str(libRawParams['rawHeight']))
+            if 'rawWidthVisible' in libRawParams:
+                self.labrawWidthVisibleValue.setText(
+                    str(libRawParams['rawWidthVisible']))
+            if 'rawHeightVisible' in libRawParams:
+                self.labrawHeightVisibleValue.setText(
+                    str(libRawParams['rawHeightVisible']))
+            if 'topMargin' in libRawParams:
+                self.labtopMarginValue.setText(str(libRawParams['topMargin']))
+            if 'leftMargin' in libRawParams:
+                self.lableftMarginValue.setText(str(
+                    libRawParams['leftMargin']))
+
 
 def parse_command_line(argv):
     parser = argparse.ArgumentParser(
@@ -447,11 +569,13 @@ def main():
 
     try:
         image_path = pathlib.Path(args.image)
-        assert image_path.exists(), 'Non-existing image path: {}'.format(str(image_path))
+        assert image_path.exists(), 'Non-existing image path: {}'.format(
+            str(image_path))
         if args.metadata:
-            metadata_path = pathlib.Path(args.metadata)  
-            assert metadata_path.exists(), 'Non-existing metadata path: {}'.format(str(metadata_path))
-        else: 
+            metadata_path = pathlib.Path(args.metadata)
+            assert metadata_path.exists(
+            ), 'Non-existing metadata path: {}'.format(str(metadata_path))
+        else:
             metadata_path = None
         image, metadata = read_image(image_path, metadata_path)
 
