@@ -29,8 +29,6 @@ The following format extensions can be displayed by command `display-image`
 | TIFF          | x    | x    | 8 bits, 16 bits        | Bayer, RGB           | .tif, .tiff                      |                  |
 
 
-![displaye-image GUI](https://github.com/user-attachments/assets/79e246d7-cd8f-4d4a-b0bc-412f2c0b8b6a)
-
 ### Read Camera manufacturer RAW image display
 
 The RAW image formats of the following camera manufacturers are supported, user can display these camera raw files by dependency `cxx-image-io` version`v1.1.2`.
@@ -47,9 +45,19 @@ The RAW image formats of the following camera manufacturers are supported, user 
 | Leica               | RAW          |
 | Pentax              | PEF          |
 
-![displaye-image RAW image](https://github.com/user-attachments/assets/1cafd5d8-0e9e-4c29-a4b9-af709ac7fafa)
+![displaye-image RAW image](https://github.com/user-attachments/assets/2b173944-03e7-4358-b5ca-698a28f54731)
 
-User can scroll mouse to zoom in/out, and at bottom it can display the zoom factor and pixel value where use clicked with mouse. 
+- User can scroll mouse to zoom in/out, and at bottom it can display the zoom factor and pixel value where use clicked with mouse. 
+- Since 0.1.6, `CalibrationData`, `CameraControls`, `LibRawParams` are added in metadata info display, they includes some image processing params such as:
+    - black level and white level
+    - color matrix
+    - white balances scales
+    - visible zone crop coordinates on camera Raw image
+
+
+![Calibration](https://github.com/user-attachments/assets/68ba87e9-9cf1-4fe1-86d2-b31d03857e61)
+![CameraControls](https://github.com/user-attachments/assets/978e0f7a-96c4-40de-9c5c-8f6a4730aa3c)
+![LibRawParams](https://github.com/user-attachments/assets/cdea0b84-6bed-41d6-ad0b-9b79f43e3421)
 
 ### Image display with sidecar JSON
 
