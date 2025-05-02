@@ -16,6 +16,7 @@ from cxx_image_io import read_image, PixelRepresentation, PixelType
 import argparse
 import pathlib
 import numpy as np
+import qdarkstyle
 
 class ImageViewer(QGraphicsView):
     def __init__(self, image, metadata, pixelStatus, zoomStatus):
@@ -455,6 +456,8 @@ def main():
         image, metadata = read_image(image_path, metadata_path)
 
         app = QApplication(sys.argv)
+        dark_stylesheet = qdarkstyle.load_stylesheet_pyqt6()
+        app.setStyleSheet(dark_stylesheet)
         img_displayer = ImageDisplayer(image, metadata, image_path)
         img_displayer.resize(1000, 800)
         img_displayer.move(100, 100)

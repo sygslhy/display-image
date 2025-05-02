@@ -8,3 +8,5 @@ dist/
 pv_venv/
 .codegpt/
 .codegpt
+.vscode
+*.egg-info
