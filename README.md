@@ -45,7 +45,7 @@ The RAW image formats of the following camera manufacturers are supported, user 
 | Leica               | RAW          |
 | Pentax              | PEF          |
 
-![displaye-image RAW image](.github/images/display-image-gui.png)
+![displaye-image RAW image](https://media.githubusercontent.com/media/sygslhy/display-image/refs/heads/master/.github/images/display-image-gui.png)
 
 - User can scroll mouse to zoom in/out, and at bottom it can display the zoom factor and pixel value where use clicked with mouse. 
 - Since 0.1.6, `CalibrationData`, `CameraControls`, `LibRawParams` are added in metadata info display, they includes some image processing params such as:
@@ -55,11 +55,11 @@ The RAW image formats of the following camera manufacturers are supported, user 
     - visible zone crop coordinates on camera Raw image
 
 
-![Calibration](.github/images/Calibration.png)
+![Calibration](https://media.githubusercontent.com/media/sygslhy/display-image/refs/heads/master/.github/images/Calibration.png)
 
-![CameraControls](.github/images/cameracontrol.png)
+![CameraControls](https://media.githubusercontent.com/media/sygslhy/display-image/refs/heads/master/.github/images/cameracontrol.png)
 
-![LibRawParams](.github/images/libraw.png)
+![LibRawParams](https://media.githubusercontent.com/media/sygslhy/display-image/refs/heads/master/.github/images/libraw.png)
 
 ### Image display with sidecar JSON
 
