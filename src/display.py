@@ -525,7 +525,7 @@ class ImageDisplayer(QWidget):
                 str(cameraControls['whiteBalance']))
             self.labwhiteBalanceValue.setWordWrap(True)
 
-        if self.metadata.libRawParameters:
+        if hasattr(self.metadata, "libRawParameters") and self.metadata.libRawParameters:
             libRawParams = self.metadata.libRawParameters.__dict__
             if 'rawWidth' in libRawParams:
                 self.labrawWidthValue.setText(str(libRawParams['rawWidth']))
